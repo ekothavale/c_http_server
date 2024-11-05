@@ -11,20 +11,17 @@ const int MAX_CLIENTS = 5;
 // length of character buffer to read requests
 const int BUFFER_LEN = 256;
 
+const int PORT = 5001;
+
 void error(const char* msg) {
     perror(msg);
-    exit(-1);
-}
-
-void cerror(const char* msg, int ecode) {
-    perror(msg);
-    exit(ecode);
+    exit(1);
 }
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        error("Improper arguments: [filename] [port]\n");
-    }
+    /*if (argc != 2) {
+        error("Improper arguments: [filename] [port]");
+    }*/
     int sockfd, newsockfd, portno, n;
     // character buffer to read requests into
     char* buffer;
@@ -37,12 +34,13 @@ int main(int argc, char** argv) {
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sockfd < 0) {
-        cerror("Socket could not be opened\n", -2);
+        error("Socket could not be opened");
     }
     // clears serv_addr
     bzero((char*) &serv_addr, sizeof(serv_addr));
     // second argument should be port number;
-    portno = atoi(argv[1]);
+    //portno = atoi(argv[1]);
+    portno = PORT;
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -50,8 +48,8 @@ int main(int argc, char** argv) {
     serv_addr.sin_port = htons(portno);
     // bind() assigns an address to the socket
     // @return 0 if successful -1 if not
-    if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr) < 0)) {
-        cerror("Could not bind server address to socket\n", -2);
+    if(bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
+        error("Could not bind server address to socket");
     }
     // AT THIS POINT:
     // SOCKET HAS BEEN BUILT AND CONNECTED TO AN ADDRESS
@@ -65,7 +63,7 @@ int main(int argc, char** argv) {
     // accepting a client;
     newsockfd = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen);
     if (newsockfd < 0) {
-        cerror("Client could not be accepted by the server\n", -2);
+        error("Client could not be accepted by the server");
     }
 
     // allocating buffer
@@ -80,7 +78,7 @@ int main(int argc, char** argv) {
         // @param buffer_size: size of char buffer
         n = read(newsockfd, buffer, BUFFER_LEN);
         if (n < 0) {
-            cerror("Failed to read request\n", -3);
+            error("Failed to read request");
         }
         // printing request to console
         printf("Client : %s\n", buffer);
@@ -99,7 +97,7 @@ int main(int argc, char** argv) {
         // writing from buffer to client
         n = write(newsockfd, buffer, strlen(buffer));
         if (n < 0) {
-            cerror("Failed to write response\n", -3);
+            error("Failed to write response\n");
         }
 
         // temporary exit code
