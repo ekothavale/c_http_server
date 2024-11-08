@@ -13,6 +13,9 @@ const int BUFFER_LEN = 256;
 
 const int PORT = 5001;
 
+//http responses
+const char* OK200 = "HTTP/1.1 200 OK\n\n";
+
 void error(const char* msg) {
     perror(msg);
     exit(1);
@@ -88,17 +91,20 @@ int main(int argc, char** argv) {
 
         // copying request from stdin
         // proper server will generate an appropriate response
-        fgets(buffer, BUFFER_LEN, stdin);
+        //fgets(buffer, BUFFER_LEN, stdin);
 
         // @param newsockfd
         // @param buffer
         // @param buffersize
         // all params same as in read
         // writing from buffer to client
-        n = write(newsockfd, buffer, strlen(buffer));
+
+        //n = write(newsockfd, buffer, strlen(buffer));
+        n = write(newsockfd, OK200, strlen(OK200));
         if (n < 0) {
             error("Failed to write response\n");
         }
+        printf("Server: %s\n", OK200);
 
         // temporary exit code
         if (strncmp("EXIT", buffer, 4) == 0) {
