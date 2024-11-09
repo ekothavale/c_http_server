@@ -1,10 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h> included in error.h
+//#include <stdlib.h> same with this
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+
+#include "error.h"
+#include "parser.h"
+#include "server.h"
 
 // maximum number of clients that can be connected to the server
 const int MAX_CLIENTS = 5;
@@ -14,12 +18,7 @@ const int BUFFER_LEN = 256;
 const int PORT = 5001;
 
 //http responses
-const char* OK200 = "HTTP/1.1 200 OK\n\n";
-
-void error(const char* msg) {
-    perror(msg);
-    exit(1);
-}
+const char* OK200 = "HTTP/1.1 200 OK\n\n<!DOCTYPE html><html><body><h1>Hello!</h1></body></html>";
 
 int main(int argc, char** argv) {
     /*if (argc != 2) {
@@ -86,6 +85,10 @@ int main(int argc, char** argv) {
         // printing request to console
         printf("Client : %s\n", buffer);
 
+        Request request = parse(buffer);
+        char* response = serve(request);
+
+
         // reclearing buffer
         bzero(buffer, BUFFER_LEN);
 
@@ -100,14 +103,15 @@ int main(int argc, char** argv) {
         // writing from buffer to client
 
         //n = write(newsockfd, buffer, strlen(buffer));
-        n = write(newsockfd, OK200, strlen(OK200));
+        n = write(newsockfd, response, strlen(response));
+        //n = write(newsockfd, OK200, strlen(OK200));
         if (n < 0) {
             error("Failed to write response\n");
         }
         printf("Server: %s\n", OK200);
 
         // temporary exit code
-        if (strncmp("EXIT", buffer, 4) == 0) {
+        if (strncmp("EXIT", response, 4) == 0) {
             break;
         }
     }
