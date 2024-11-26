@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     }
 
     // allocating buffer
-    buffer = malloc(BUFFER_LEN);
+    char buffer[BUFFER_LEN];
 
     // main Read-Write loop
     while(1) {
@@ -117,10 +117,9 @@ int main(int argc, char** argv) {
     }
 
     // closing sockets
+    // as of now, sockets are unclosed when an error function is called
     close(newsockfd);
     close(sockfd);
-    
-    free(buffer);
     return 0;
 }
 
