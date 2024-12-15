@@ -9,6 +9,7 @@
 #include "error.h"
 #include "parser.h"
 #include "server.h"
+#include "file.h"
 
 // maximum number of clients that can be connected to the server
 const int MAX_CLIENTS = 5;
@@ -21,12 +22,13 @@ const int PORT = 5001;
 const char* OK200 = "HTTP/1.1 200 OK\n\n<!DOCTYPE html><html><body><h1>Hello!</h1></body></html>";
 
 int main(int argc, char** argv) {
+    readContent("index.html");
     /*if (argc != 2) {
         error("Improper arguments: [filename] [port]");
     }*/
     int sockfd, newsockfd, portno, n;
     // character buffer to read requests into
-    char* buffer;
+    char buffer[BUFFER_LEN];
 
     struct sockaddr_in serv_addr, cli_addr;
     socklen_t clilen;
@@ -67,9 +69,7 @@ int main(int argc, char** argv) {
     if (newsockfd < 0) {
         error("Client could not be accepted by the server");
     }
-
-    // allocating buffer
-    char buffer[BUFFER_LEN];
+    
 
     // main Read-Write loop
     while(1) {
