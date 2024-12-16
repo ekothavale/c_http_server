@@ -22,7 +22,7 @@ const int PORT = 5001;
 const char* OK200 = "HTTP/1.1 200 OK\n\n<!DOCTYPE html><html><body><h1>Hello!</h1></body></html>";
 
 int main(int argc, char** argv) {
-    readContent("index.html");
+    readContent("ethan.html");
     /*if (argc != 2) {
         error("Improper arguments: [filename] [port]");
     }*/

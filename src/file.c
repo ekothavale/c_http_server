@@ -45,30 +45,59 @@ char* createPath(char* fname) {
 
     // compete path to target resource;
     strcat(pathToTarget, fname);
-    printf("Works fine through here\n");
     return pathToTarget;
+}
+
+bool targetExists(char* path, char* fname) {
+    DIR* dir;
+    struct dirent* ent;
+    // if path cannot be opened
+    if ((dir = opendir(path)) == NULL) {
+        return false;
+    }
+    // if a file in the directory matches fname, return true
+    while((ent = readdir(dir)) != NULL) {
+        if (strncmp(ent->d_name, fname, strlen(fname)) == 0) return true;
+    }
+    // if none do return false
+    return false;
+
 }
 
 // given a filename, read the content from the file
 void readContent(char* fname) {
     char* path = createPath(fname);
-    
+    // should check if path exists; if not, respond 404
+    // copying directory path into a new string
+    int dirPathLen = strlen(path) - strlen(fname) - 1;
+    char* dir = malloc(dirPathLen);
+    for (int i = 0; i < dirPathLen; i++) {
+        dir[i] = path[i];
+    }
+    // checking if file exists
+    if (!targetExists(dir, fname)) {
+        // will later return 404 page
+        printf("404 Not found\n");
+    }
+    free(dir);
+
+    // opening target file
     FILE* target = fopen(path, "r");
     // error opening file
     if (target == NULL) {
-        printf("The problem is here\n");
         fclose(target);
         free(path);
-        char* emess = "Error: error opening resource file: ";
-        strcat(emess, fname);
-        error(emess);
+        error("Error opening target of GET request\n");
     }
 
-    char buffer[256];
+    // buffer to copy target contents
+    char buffer[4096];
 
+    // for now prints out contents of target file
     while (fgets(buffer, sizeof(buffer), target) != NULL) {
         printf("%s", buffer);
     }
+    printf("\n");
 
     free(path);
     fclose(target);
@@ -77,10 +106,7 @@ void readContent(char* fname) {
 
 
 // TODO:
-// Create system that determines the path to the content folder whether or not
-// the program is run from c_http_server or src
-
-// Use that path to check if the filename requested by the client exists and
-// that this program is allowed to read from it
 
 // Read and return the contents of the file
+
+// Make the parser able to determine the target of a GET request connect to this appropriately
