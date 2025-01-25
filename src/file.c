@@ -55,7 +55,6 @@ bool targetExists(char* path, char* fname) {
         return false;
     }
     // if a file in the directory matches fname, return true
-    printf("Listing files:\n"); // Debugging
     while((ent = readdir(dir)) != NULL) {
         if (strncmp(ent->d_name, fname, strlen(fname)) == 0) return true;
         printf("%s\n", ent->d_name);
@@ -71,7 +70,6 @@ Response* readContent(char* fname) {
     if (strlen(fname) == 1 && fname[0] == '/') fname = "index.html"; // if path to target resource is '/'
     Response* out;
     char* path = createPath(fname);
-    printf("Create Path Executes\n"); // Debugging
     printf("%s\n", path); // Debugging
     // copying directory path into a new string
     int dirPathLen = strlen(path) - strlen(fname) - 1;
@@ -86,12 +84,9 @@ Response* readContent(char* fname) {
         out->payload = NF404;
         out->next = NULL;
         free(dir);
-        printf("Not Found Executes\n"); // Debugging
-        printf("%s\n", out->payload); // Debugging
         return out;
     }
     free(dir);
-    printf("Checking Directory Executes\n"); // Debugging
 
     // opening target file
     FILE* target = fopen(path, "r");
