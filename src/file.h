@@ -7,6 +7,9 @@
 #include <dirent.h>
 #include <stdbool.h>
 
-void readContent(char* fname);
+#include "error.h"
+#include "struct.h"
+
+Response* readContent(char* fname);
 
 #endif

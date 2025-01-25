@@ -21,8 +21,50 @@ const int PORT = 5001;
 //http responses
 const char* OK200 = "HTTP/1.1 200 OK\n\n<!DOCTYPE html><html><body><h1>Hello!</h1></body></html>";
 
+// TODO: test function
+char* growArr(char* arr, int size) { // untested function
+    char* out = malloc(size);
+    for (int i = 0; i < size/2; i++) {
+        out[i] = arr[i];
+    }
+    free(arr);
+    return out;
+}
+
+// Move to appropriate location after tested
+// Converts webpage loaded into a linked list of response objects into a single string
+char* compileResponse(Response* response) {
+    char* out = malloc(4096);
+    int outsize = 4096;
+    int pos = 0;
+    while (response != NULL) {
+        for (int i = 0; i < 4096; i++) {
+            printf("%d.", *(response->payload+i));
+            // stop reading string node if null terminator encountered
+            if (*(response->payload+i) == '\0') {
+                break;
+            }
+            // grow array
+            if (pos == outsize) {
+                outsize *= 2;
+                out = growArr(out, outsize);
+            }
+            // read characters into output
+            out[pos] = *(response->payload+i);
+            pos++;
+        }
+        response = response->next;
+        if (response == NULL) printf("response is eventually null\n");
+        printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    }
+    printf("compileResponse() almost returns\n"); // debugging
+    return out;
+    printf("compileResponse() almost returns\n"); // debugging
+}
+
 int main(int argc, char** argv) {
-    readContent("ethan.html");
+    // Debugging to test if readContent functions properly. delete once this is confirmed
+    /*Response* test = readContent("/");*/
     /*if (argc != 2) {
         error("Improper arguments: [filename] [port]");
     }*/
@@ -70,6 +112,7 @@ int main(int argc, char** argv) {
         error("Client could not be accepted by the server");
     }
     
+    printf("Executes\n");
 
     // main Read-Write loop
     while(1) {
@@ -86,8 +129,9 @@ int main(int argc, char** argv) {
         printf("Client : %s\n", buffer);
 
         Request request = parse(buffer);
-        char* response = serve(request);
-
+        Response* response = serve(request);
+        char* compResponse = compileResponse(response);
+        printf("Response compiled\n"); // debugging
 
         // reclearing buffer
         bzero(buffer, BUFFER_LEN);
@@ -103,15 +147,16 @@ int main(int argc, char** argv) {
         // writing from buffer to client
 
         //n = write(newsockfd, buffer, strlen(buffer));
-        n = write(newsockfd, response, strlen(response));
+        n = write(newsockfd, compResponse, strlen(compResponse));
+        free(compResponse);
         //n = write(newsockfd, OK200, strlen(OK200));
         if (n < 0) {
             error("Failed to write response\n");
         }
-        printf("Server: %s\n", OK200);
+        printf("Server: %s\n", compResponse);
 
         // temporary exit code
-        if (strncmp("EXIT", response, 4) == 0) {
+        if (strncmp("EXIT", compResponse, 4) == 0) {
             break;
         }
     }

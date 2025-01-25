@@ -2,7 +2,8 @@
 #define chttp_server_h
 
 #include "parser.h"
+#include "struct.h"
 
-char* serve(Request request);
+Response* serve(Request request);
 
 #endif

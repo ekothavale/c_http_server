@@ -5,7 +5,7 @@ main: server.o file.o error.o parser.o main.o
 error.o: error.c error.h
 	gcc -c error.c -o error.o
 
-file.o: file.c error.h file.h
+file.o: file.c error.h file.h struct.h
 	gcc -c file.c -o file.o
 
 main.o: main.c error.h file.h parser.h server.h
